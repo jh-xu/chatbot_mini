@@ -1,0 +1,50 @@
+h3.section_head {
+    font-family: Arial;
+    background-color: #88CCC9;
+    font-size: 20px;
+    magrin-bottm: 2px;
+    padding: 12px 10px;
+    font-weight: normal;
+}
+.user_info {
+	font-family: Arial;
+}
+	
+div.error_box {
+    font-family: Arial;
+    background-color: #DD8080;
+    font-size: 20px;
+    magrin-bottm: 2px;
+    padding: 10px 10px;
+    font-weight: normal;
+}
+
+
+table {
+    border-collapse: collapse;
+}
+
+th, td {
+    text-align: center;
+    padding: 8px;
+    font-family: arial;
+}
+
+input.entry {
+    width: 4em;
+}
+
+
+
+[contenteditable="true"] {
+    white-space: nowrap;
+    overflow: hidden;
+} 
+[contenteditable="true"] br {
+    display:none;
+
+}
+[contenteditable="true"] * {
+    display:inline;
+    white-space:nowrap;
+}

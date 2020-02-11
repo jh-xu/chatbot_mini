@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Sign up</title>
+	<link  href="{% static 'css/mycss.css' %}" rel="stylesheet">
+</head>
+<body>
+<h1>Many thanks for your input！</h1>
+<h3 class="section_head"> We received your input:</h3>
+
+    <p class="user_info">User name： {{user_info.name}}</p>
+    <p class="user_info">Email&nbsp;&nbsp;&nbsp;&nbsp;：{{user_info.email}}</p>
+	
+	{% if input_length != 0 %}
+		<table>
+			<thead>
+				<tr>
+					<th>Mark</th>
+					<th>Model</th>
+					<th>Number</th>
+				</tr>
+			</thead>
+			<tbody id="input_tbody">
+			{% for item in input_rows %}
+				<tr class="input_row">
+					<td style="text-align: left">{{item.Mark}}</td>
+					<td style="text-align: left">{{item.Model}}</td>
+					<td style="text-align: left">{{item.Number}}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	{% endif %}
+</body>
+</html>

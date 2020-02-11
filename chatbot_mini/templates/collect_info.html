@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Collect informations</title>
+	<link  href="{% static 'css/mycss.css' %}" rel="stylesheet">
+    <script src="{% static 'js/jquery-3.4.1.js' %}"></script>
+	<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script> 
+</head>
+<body>
+<div id="div_inputs">
+	<h1 id="input_header" class="section_head">Information collection</h1>
+	<h3 id="input_header" class="section_head">Please input your name and email</h3>
+	<div id="input_table" class="input_table graphic">
+	<form id="entry" class="form-vertical" method="post" action="/submit/">
+	{% csrf_token %}
+	    <p class="user_info" >User name：<input type="text" id="id_username" name="username", required="required"> * </p>
+        <p class="user_info" >Email：<input type="text" id="id_username" name="email", required="required"> * </p>
+		<h3 id="input_header" class="section_head">Please input the trucks and their specifications you have!</h3>
+		<table>
+			<thead>
+			<tr>
+				<th>Mark</th>
+				<th>Model</th>
+				<th>Number</th>
+			</tr>
+			</thead>
+			<tbody id="input_tbody">
+			<tr class="input_row">
+				<td><input type="text" name="Mark" class="entry"></td>
+				<td><input type="text" name="Model" class="entry"></td>
+				<td><input type="text" name="Number" class="entry"></td>
+				<td>
+					<button type="button" class="add_button action_button" id="add_button">add</button>
+				</td>
+			</tbody>
+			<tfoot>
+			</tfoot>
+		</table>
+	    <div id="hidden_inputs" class="hidden_inputs" style="display:none">
+			<input type="text" id="Mark_list" name="Mark_list">
+			<input type="text" id="Model_list" name="Model_list">
+			<input type="text" id="Number_list" name="Number_list">
+		</div>	
+	<button type="submit" form="entry" class="btn">Submit</button>
+	</form>	
+    </div>
+</div>
+</body>
+
+<div id="input_error_box" class="error_box">
+	One or more inputs are invalid.
+</div>
+
+
+<script>
+	var remove_buttonfun = function remove_buttonfun(event) {
+			$(event.target).closest("tr").fadeOut(callback=function(){$(event.target).closest("tr").remove();});
+
+		}
+
+	var is_invalid = function is_invalid(value, name) {
+	    if (name==="Mark" || name==="Model"){
+		    if (value===""){
+			    return true
+			}
+		} else if (isNaN(value)){
+		   return true
+		}
+	}
+
+	var add_buttonfun = function add_buttonfun(event) {
+		var entries = ["Mark", "Model", "Number"];
+		var values = {};
+		var node = $(event.target).closest("tr");
+
+		var has_invalid = false
+		for (name of entries) {
+			var value = $(`input[name="${name}"]`).val();
+			has_invalid = has_invalid || is_invalid(value, name) || value === "";
+			values[name] = value;
+		}
+		
+		if (!has_invalid) {
+			node.before(`<tr class="input_row"> 
+			<td contenteditable="true" name="Mark" class="Mark editable" style="text-align: left"> ${values.Mark.toString()} </td>
+			<td contenteditable="true" name="Model" class="Model editable"> ${values.Model.toString()} </td>
+			<td contenteditable="true" name="Number" class="Number editable">${values.Number.toString()} </td>
+			<td> <button type="button" class="remove_button action_button">remove </button> </td> 
+			</tr>`)
+			
+			// Empty the last row
+			for (name of entries) {
+				var value = $(`input[name="${name}"]`).val('');
+			}
+			$("#input_error_box").hide();	
+			
+        } else {
+			$("#input_error_box").show();	
+		}	
+	}
+	
+	var update_list = function update_list(name) {
+        var doms = $(`.${name}`);
+        var data_entries = [];
+        for (dom of doms) {
+            data_entries.push(dom.textContent);
+        }
+        var hidden_name = name + "_list";
+        var hidden_entry = $(`#${hidden_name}`);
+        var hidden_value = "";
+        for (value of data_entries) {
+            hidden_value = hidden_value + value + ","
+        }
+        hidden_entry.val(hidden_value.slice(0, -1));
+    }
+
+    var update_lists = function update_lists() {
+        var entries = ["Mark", "Model", "Number"];
+        for (entry of entries) {
+            update_list(entry);
+        }
+    }
+	
+	$("#entry").submit(function(event){
+        update_lists();
+		// checking (not using)
+        if ($(".input_row").length === 10000) {
+			event.preventDefault();
+			return false;
+            alert("At least one input_row is required.");
+        }
+    })
+
+    var add_button = $("#add_button");
+    add_button.click(add_buttonfun);
+
+    $("#input_table").on("click", ".remove_button", remove_buttonfun)
+	$("#input_error_box").hide();
+	
+</script>
+</html>
