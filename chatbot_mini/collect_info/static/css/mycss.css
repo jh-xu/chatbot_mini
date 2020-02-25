@@ -19,6 +19,11 @@ div.error_box {
     font-weight: normal;
 }
 
+div.hint_box {
+    font-family: Arial;
+    background-color: #DD8080;
+    font-weight: normal;
+}
 
 table {
     border-collapse: collapse;

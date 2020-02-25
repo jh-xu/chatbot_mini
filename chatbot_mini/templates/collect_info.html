@@ -14,7 +14,7 @@
 	<h1 id="input_header" class="section_head">Information collection</h1>
 	<h3 id="input_header" class="section_head">Please input your name and email</h3>
 	<div id="input_table" class="input_table graphic">
-	<form id="entry" class="form-vertical" method="post" action="/submit/">
+	<form id="entry" class="form-vertical" method="post" action="/submit/" data-models-url="{% url 'ajax_load_models' %}" novalidate>
 	{% csrf_token %}
 	    <p class="user_info" >User name：<input type="text" id="id_username" name="username", required="required"> * </p>
         <p class="user_info" >Email：<input type="text" id="id_username" name="email", required="required"> * </p>
@@ -24,25 +24,26 @@
 			<tr>
 				<th>Mark</th>
 				<th>Model</th>
-				<th>Number</th>
+				<th>Quantity</th>
 			</tr>
 			</thead>
 			<tbody id="input_tbody">
-			<tr class="input_row">
-				<td><input type="text" name="Mark" class="entry"></td>
-				<td><input type="text" name="Model" class="entry"></td>
-				<td><input type="text" name="Number" class="entry"></td>
-				<td>
+				<tr>
+					{% for field in form %}
+						<td>{{ field }} </td>
+					{% endfor %}
+					<td>
 					<button type="button" class="add_button action_button" id="add_button">add</button>
-				</td>
+					</td>
+				</tr>	
 			</tbody>
 			<tfoot>
 			</tfoot>
 		</table>
 	    <div id="hidden_inputs" class="hidden_inputs" style="display:none">
-			<input type="text" id="Mark_list" name="Mark_list">
-			<input type="text" id="Model_list" name="Model_list">
-			<input type="text" id="Number_list" name="Number_list">
+			<input type="text" id="mark_list" name="mark_list">
+			<input type="text" id="model_list" name="model_list">
+			<input type="text" id="quantity_list" name="quantity_list">
 		</div>	
 	<button type="submit" form="entry" class="btn">Submit</button>
 	</form>	
@@ -50,54 +51,177 @@
 </div>
 </body>
 
-<div id="input_error_box" class="error_box">
-	One or more inputs are invalid.
-</div>
+<div id="input_error_box" class="error_box"> </div>
+
+<script>
+$("#id_mark").change(function () {
+  var url = $("#entry").attr("data-models-url");
+  <!-- var mark = $(this).val(); -->
+  var mark = $( "#id_mark option:selected" ).text()
+  
+  if (mark != "Other"){
+	  $.ajax({
+		url: url,
+		data: {
+		  'mark': mark
+		},
+		success: function (data) {
+		  $("#id_model").html(data);
+		}
+	  });
+   } else {
+		$("#id_mark").closest("tr").before(`
+					<tr class="input_row"> 
+					<td><input type="text" name="mark" class="entry"></td>
+					<td><input type="text" name="model" class="entry"></td>
+					<td><input type="number" min="1" name="quantity" class="entry"></td>
+					<td>
+						<button type="button" class="add_button action_button" id="add_button_other">add</button>
+					</td>
+					<td> <button type="button" class="remove_button action_button">remove </button> </td> 
+					<td> <div class="hint_box">Type in this row</div></td>
+                    </tr>
+					`)
+			// Disable "add_button" in the drop-down-list row temporarily (aftter adding or removing, enable it again)
+            $('#add_button').prop('disabled', true);
+	};
+});
+
+$("#id_model").change(function () {
+  var model = $( "#id_model option:selected" ).text()
+  
+  if (model === "Other"){
+		$("#id_model").closest("tr").before(`<tr class="input_row">
+					<td><input type="text" name="mark" class="entry" value="${$("#id_mark option:selected").text()}"></td>
+					<td><input type="text" name="model" class="entry"></td>
+					<td><input type="number" min="1" name="quantity" class="entry"></td>
+					<td>
+						<button type="button" class="add_button action_button" id="add_button_other">add</button>
+					</td>
+					<td> <button type="button" class="remove_button action_button">remove </button> </td> 
+                    <td> <div class="hint_box">Type in this row</div></td>
+					</tr>
+					`)
+			// Disable "add_button" in the drop-down-list row temporarily (aftter adding or removing, enable it again)
+            $('#add_button').prop('disabled', true);
+	}
+});
 
 
+</script>
+  
 <script>
 	var remove_buttonfun = function remove_buttonfun(event) {
 			$(event.target).closest("tr").fadeOut(callback=function(){$(event.target).closest("tr").remove();});
-
-		}
-
-	var is_invalid = function is_invalid(value, name) {
-	    if (name==="Mark" || name==="Model"){
-		    if (value===""){
-			    return true
+			
+		// Enable "add_botton" the drop-down row (aiming for the remove button for adding "other")
+        $('#add_button').prop('disabled', false);	
+		
+		for (name of ["mark", "model"]) {
+				$('#id_'.concat(name)).prop('selectedIndex',0);
 			}
-		} else if (isNaN(value)){
-		   return true
+			for (name of ["quantity"]) {
+			    $(`input[name="${name}"]`).val('');
+			}
 		}
-	}
 
 	var add_buttonfun = function add_buttonfun(event) {
-		var entries = ["Mark", "Model", "Number"];
+	    var selections = ["mark", "model"]
+		var inputs = ["quantity"];
 		var values = {};
 		var node = $(event.target).closest("tr");
-
-		var has_invalid = false
-		for (name of entries) {
-			var value = $(`input[name="${name}"]`).val();
-			has_invalid = has_invalid || is_invalid(value, name) || value === "";
-			values[name] = value;
+		var invalid_list = []
+		var idx = "0";	
+		var value = "";
+		
+	    for (name of selections) {
+		    idx = $( "#id_".concat(name, " option:selected") ).val()
+			value = $( "#id_".concat(name, " option:selected") ).text()
+			if (idx === "0"){
+                invalid_list.push(name)
+			} else {
+			    values[name] = value;
+				idx = "0"
+			}
+		}	
+		
+		for (name of inputs) {
+		    value = $(`input[name="${name}"]`).val();
+			if (value === "" || value<=0){
+				invalid_list.push(name)
+			} else {
+					values[name] = value;
+			}
 		}
 		
-		if (!has_invalid) {
+		if (invalid_list.length === 0) {
 			node.before(`<tr class="input_row"> 
-			<td contenteditable="true" name="Mark" class="Mark editable" style="text-align: left"> ${values.Mark.toString()} </td>
-			<td contenteditable="true" name="Model" class="Model editable"> ${values.Model.toString()} </td>
-			<td contenteditable="true" name="Number" class="Number editable">${values.Number.toString()} </td>
+			<td contenteditable="true" name="mark" class="mark editable" style="text-align: left"> ${values.mark.toString()} </td>
+			<td contenteditable="true" name="model" class="model editable"> ${values.model.toString()} </td>
+			<td contenteditable="true" name="quantity" class="quantity editable">${values.quantity.toString()} </td>
 			<td> <button type="button" class="remove_button action_button">remove </button> </td> 
-			</tr>`)
+			</tr>`);
 			
 			// Empty the last row
-			for (name of entries) {
-				var value = $(`input[name="${name}"]`).val('');
+			for (name of selections) {
+				$('#id_'.concat(name)).prop('selectedIndex',0);
 			}
-			$("#input_error_box").hide();	
+			for (name of inputs) {
+			    $(`input[name="${name}"]`).val('');
+			}
+			$("#input_error_box").hide();				
+        } else {
+		    $("#input_error_box").html("Invalid input(s): ".concat(invalid_list.toString()));
+			$("#input_error_box").show();	
+		}	
+	}
+	
+	var add_buttonfun_other = function add_buttonfun_other(event) {
+		var values = {};
+		var node = $(event.target).closest("tr");
+        var invalid_list = []
+
+		for (name of ["mark", "model"]) {
+		    value = $(`input[name="${name}"]`).val();
+			if (value === ""){
+				invalid_list.push(name)
+			} else {
+					values[name] = value;
+			}
+		}
+		
+		for (name of ["quantity"]) {
+		    value = $(`input[name="${name}"]`).val();
+			if (value === "" || value<=0){
+				invalid_list.push(name)
+			} else {
+					values[name] = value;
+			}
+		}
+		
+		if (invalid_list.length === 0) {
+			node.before(`<tr class="input_row"> 
+			<td contenteditable="true" name="mark" class="mark editable" style="text-align: left"> ${values.mark.toString()} </td>
+			<td contenteditable="true" name="model" class="model editable"> ${values.model.toString()} </td>
+			<td contenteditable="true" name="quantity" class="quantity editable">${values.quantity.toString()} </td>
+			<td> <button type="button" class="remove_button action_button">remove </button> </td> 
+			</tr>`);
+			
+			// Empty the input row
+			node.closest("tr").remove();
+			$("#input_error_box").hide();
+            
+            for (name of ["mark", "model"]) {
+				$('#id_'.concat(name)).prop('selectedIndex',0);
+			}
+			for (name of ["quantity"]) {
+			    $(`input[name="${name}"]`).val('');
+			}
+			// Enable "add_botton" the dropdown row temperorily
+            $('#add_button').prop('disabled', false);	
 			
         } else {
+		    $("#input_error_box").html("Invalid input(s): ".concat(invalid_list.toString()));
 			$("#input_error_box").show();	
 		}	
 	}
@@ -118,26 +242,48 @@
     }
 
     var update_lists = function update_lists() {
-        var entries = ["Mark", "Model", "Number"];
+        var entries = ["mark", "model", "quantity"];
         for (entry of entries) {
             update_list(entry);
         }
     }
 	
 	$("#entry").submit(function(event){
-        update_lists();
+		var inputs = ["username", "email"];
+		var value = "";
+		var invalid_list = [];
+		
+	    for (name of inputs) {
+		    value = $(`input[name="${name}"]`).val();
+			if (value === ""){
+                invalid_list.push(name)
+			} 
+		}	
+		
+		if (invalid_list.length != 0) {
+			$("#input_error_box").html("Please input: ".concat(invalid_list.toString()));
+			$("#input_error_box").show();
+            event.preventDefault(); return false;
+		} else { 
+			$("#input_error_box").hide();
+			update_lists();
+        }		
+
 		// checking (not using)
-        if ($(".input_row").length === 10000) {
+        if ($(".input_row").length === 100000) {
 			event.preventDefault();
-			return false;
-            alert("At least one input_row is required.");
+			alert("At least one input_row is required.");
+			return false;           
         }
     })
 
     var add_button = $("#add_button");
     add_button.click(add_buttonfun);
-
+		
+    $("#input_table").on("click", "#add_button_other", add_buttonfun_other)
+	
     $("#input_table").on("click", ".remove_button", remove_buttonfun)
+	
 	$("#input_error_box").hide();
 	
 </script>
