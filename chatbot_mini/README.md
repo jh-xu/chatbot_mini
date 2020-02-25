@@ -18,7 +18,7 @@ It collects users' names, emails and information of the trucks they have. The us
 2. An added row can be removed using the "remove" button at the end of the row. 
 
 3. By clicking the "Submit" button, the form will be submitted and data will be saved.
-<img src="https://github.com/jh-xu/chatbot_mini/blob/master/chatbot_mini/chatbot_mini_Select_Add.png" width=40% />
+<img src="https://github.com/jh-xu/chatbot_mini/blob/master/chatbot_mini/chatbot_mini_Select_Add.PNG" width=40% />
 
 4. After submit, it shows a summary of the users' input.
 <img src="https://github.com/jh-xu/chatbot_mini/blob/master/chatbot_mini/submit.png" width=40% />
