@@ -10,7 +10,7 @@ import csv
 mark_choices = [('0', '----')]
 model_choices = {}
 
-# Loading marks and models from csv into lists of tuples (idx, item) without sorting
+# Loading marks and models from csv into lists of tuples (idx, item) with sorting
 with open('truck_marks_models.csv') as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
     
