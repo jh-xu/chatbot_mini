@@ -12,7 +12,7 @@ It collects users' names, emails and information of the trucks they have. The us
 * If something is not in the the lists, select "Other" and then type in the new row appeared above. 
 * Before "add" or "remove" this new row, the old "add" button is disabled.
 * More options in the drop-down list are possible by adding more truck marks and models in the file "truck_marks_models.csv".
-<img src="https://github.com/jh-xu/chatbot_mini/blob/master/chatbot_mini/chatbot_mini_Select_Add_Other.png" width=40% />
+<img src="https://github.com/jh-xu/chatbot_mini/blob/master/chatbot_mini/chatbot_mini_Select_Add_Other.PNG" width=40% />
 
 
 2. An added row can be removed using the "remove" button at the end of the row. 
