@@ -69,7 +69,7 @@ $("#id_mark").change(function () {
 		  $("#id_model").html(data);
 		}
 	  });
-   } else {
+   } else if ($( "#add_button_other" ).length ===0) {
 		$("#id_mark").closest("tr").before(`
 					<tr class="input_row"> 
 					<td><input type="text" name="mark" class="entry"></td>
@@ -90,7 +90,7 @@ $("#id_mark").change(function () {
 $("#id_model").change(function () {
   var model = $( "#id_model option:selected" ).text()
   
-  if (model === "Other"){
+  if (model === "Other" && $( "#add_button_other" ).length ===0){
 		$("#id_model").closest("tr").before(`<tr class="input_row">
 					<td><input type="text" name="mark" class="entry" value="${$("#id_mark option:selected").text()}"></td>
 					<td><input type="text" name="model" class="entry"></td>
